@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Key Account Health Cockpit - mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Roboto:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  /* Colours of careers.propellingtech.com: white page, dark grey #2D3540 for titles, shades of its turquoise #6BD9DE for charts (darker = higher risk) */
+  :root {
+    --navy: #2D3540; --blue: #176366; --turq: #6BD9DE; --pale: #AAE9EC;
+    --border: #EDEBEB; --card: #FFFFFF; --ink: #292626; --muted: #7A7575; --line: #EDEBEB;
+    --high: #176366; --medium: #6BD9DE; --low: #AAE9EC; --inactive: #DDF5F6; --good: #3A9E5F; --bad: #C0392B;
+    --text: Inter, "Segoe UI", sans-serif; --head: Roboto, "Segoe UI Semibold", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #F4F4F4; font-family: var(--text); color: var(--ink); }
+  .note { max-width: 1280px; margin: 16px auto 8px; font-size: 13px; color: #374151; }
+  /* 1280 x 720 = Power BI 16:9 page; every block uses the same x/y/w/h as tools/build_pbip.py */
+  .page { position: relative; width: 1280px; height: 720px; margin: 0 auto 24px; background: #FFFFFF; overflow: hidden; }
+  .box { position: absolute; background: var(--card); border: 1px solid var(--border); border-radius: 22px; padding: 12px 14px; }
+  .band { border-radius: 28px; padding: 16px 26px; }
+  .band h1 { margin: 0; font: 700 24px/1.2 var(--head); color: var(--navy); }
+  .band p { margin: 4px 0 0; font-size: 13px; color: var(--blue); }
+  .slicer { border: 1px solid var(--pale); border-radius: 10px; padding: 4px 8px; }
+  .slicer .label { font-size: 10.5px; font-weight: 600; color: var(--blue); margin-bottom: 3px; }
+  .slicer .field { font-size: 12px; display: flex; justify-content: space-between; color: var(--ink); }
+  .flag { position: absolute; width: 30px; height: 20px; border-radius: 2px; font: 600 9px/20px var(--text);
+          text-align: center; color: #fff; background: var(--navy); }
+  .flag.active { outline: 2px solid var(--turq); }
+  .kpi-head { font: 700 16px var(--head); color: var(--navy); }
+  .kpi-head .icon { color: var(--blue); margin-right: 8px; }
+  .kpi-value { position: absolute; font: 700 32px var(--head); color: var(--navy); }
+  .kpi-spark { position: absolute; }
+  .spark-cap { position: absolute; width: 96px; font-size: 9px; line-height: 1.25; color: var(--muted); }
+  .kpi-sub { position: absolute; }
+  .kpi-sub b { display: block; font: 700 18px var(--head); color: var(--blue); }
+  .kpi-sub span { font-size: 10.5px; color: var(--muted); }
+  h3 { margin: 0; font: 700 16px var(--head); color: var(--navy); }
+  .sub { margin: 2px 0 6px; font-size: 10.5px; color: var(--muted); }
+  .legend { display: flex; gap: 12px; font-size: 11px; color: var(--muted); margin: 6px 0 4px; }
+  .legend i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 4px; }
+  table { width: 100%; border-collapse: collapse; font-size: 10px; }
+  td, th { white-space: nowrap; }
+  td:last-child, td:nth-child(2) { white-space: normal; }
+  th { text-align: left; color: var(--navy); font-weight: 600; border-bottom: 1px solid var(--line); padding: 3px; }
+  td { padding: 3px; border-bottom: 1px solid var(--line); }
+  td.num, th.num { text-align: right; }
+  .worklist { border: 2px solid var(--turq); }
+  .worklist h3 { font-size: 20px; }
+  .worklist table { font-size: 13px; }
+  .worklist td, .worklist th { padding: 5px 6px; }
+  .dcard { padding: 18px 16px; }
+  .dcard b { display: block; font: 700 19px var(--head); color: var(--navy); }
+  .dcard span { font-size: 10.5px; color: var(--muted); }
+  .tip { box-shadow: 0 6px 18px rgba(0,0,0,.18); border: 2px solid var(--turq); border-radius: 12px; padding: 6px 12px; }
+  .logcall { z-index: 2; border-color: var(--turq); }
+  .logcall .field { font-weight: 700; justify-content: center; }
+  .tname { font: 700 17px var(--head); color: var(--navy); }
+  .tgrid { display: grid; grid-template-columns: 120px 150px 120px; gap: 6px 10px; margin-top: 6px; }
+  .tgrid .wide { grid-column: span 2; }
+  .tgrid b { display: block; font: 700 14px var(--head); color: var(--navy); }
+  .tgrid span { font-size: 10.5px; color: var(--muted); }
+  .story { font-size: 11px; line-height: 1.45; color: var(--navy); padding: 8px 16px; }
+</style>
+</head>
+<body>
+<p class="note"><b>Mockup</b> of the Power BI page (1280 x 720), matching the current report design. Numbers are illustrative; the real report reads the GOLD schema in Snowflake.</p>
+
+<div class="page">
+  <!-- White header band -->
+  <div class="box band" style="left:8px; top:8px; width:1264px; height:86px; padding-right:440px;">
+    <h1>Furniture key accounts (tier A) · United Kingdom: health and churn risk</h1>
+    <p>Key Account Manager cockpit · last 12 months (Aug 1997 - Jul 1998) · which accounts are cooling down, why, and what revenue is at stake</p>
+  </div>
+
+  <!-- Filter pills (short labels, so they are never cut with "...") -->
+  <div class="box slicer" style="left:842px; top:15px; width:160px; height:71px;"><div class="label">Customer</div><div class="field">🔍 All <span>▾</span></div></div>
+  <div class="box slicer" style="left:1010px; top:15px; width:103px; height:71px;"><div class="label">Risk</div><div class="field">All <span>▾</span></div></div>
+
+  <!-- Language flags (the active one has a turquoise outline) -->
+  <div class="flag active" style="left:1158px; top:38px;">EN</div>
+  <div class="flag" style="left:1194px; top:38px; background:#C60B1E;">ES</div>
+  <div class="flag" style="left:1230px; top:38px; background:#E8B92E; color:#B5121B;">CA</div>
+
+  <!-- KPI cards: icon + label, big number, sparkline, comparison line -->
+  <div class="box" style="left:24px; top:110px; width:276px; height:190px; padding:16px 18px;"><div class="kpi-head"><span class="icon">◎</span>Active accounts</div></div>
+  <div class="kpi-value" style="left:38px; top:160px;">155</div>
+  <div class="spark-cap" style="left:196px; top:206px;"><b>Monthly revenue</b><br>Aug 1997 - Jul 1998</div>
+  <svg class="kpi-spark" style="left:200px; top:150px;" width="88" height="56" viewBox="0 0 88 64" preserveAspectRatio="none"><path d="M0,30 L11,26 L22,32 L33,24 L44,28 L55,22 L66,27 L77,25 L88,46 L88,64 L0,64Z" fill="#6BD9DE" opacity=".25"/><polyline points="0,30 11,26 22,32 33,24 44,28 55,22 66,27 77,25 88,46" fill="none" stroke="#6BD9DE" stroke-width="2"/></svg>
+  <div class="kpi-sub" style="left:38px; top:230px;"><b style="color:var(--bad)">▼ -6.4%</b><span>Last 12 months vs previous 12 months</span></div>
+
+  <div class="box" style="left:24px; top:312px; width:276px; height:190px; padding:16px 18px;"><div class="kpi-head"><span class="icon" style="color:var(--bad)">⚠</span>High-risk accounts</div></div>
+  <div class="kpi-value" style="left:38px; top:362px;">26</div>
+  <div class="spark-cap" style="left:196px; top:408px;"><b>Monthly revenue</b><br>Aug 1997 - Jul 1998</div>
+  <svg class="kpi-spark" style="left:200px; top:352px;" width="88" height="56" viewBox="0 0 88 64" preserveAspectRatio="none"><path d="M0,22 L11,24 L22,20 L33,26 L44,25 L55,30 L66,36 L77,44 L88,52 L88,64 L0,64Z" fill="#6BD9DE" opacity=".25"/><polyline points="0,22 11,24 22,20 33,26 44,25 55,30 66,36 77,44 88,52" fill="none" stroke="#6BD9DE" stroke-width="2"/></svg>
+  <div class="kpi-sub" style="left:38px; top:432px;"><b style="color:var(--bad)">▼ -41.8%</b><span>Last 12 months vs previous 12 months</span></div>
+
+  <div class="box" style="left:24px; top:514px; width:276px; height:190px; padding:16px 18px;"><div class="kpi-head"><span class="icon" style="color:var(--bad)">◆</span>Revenue at risk</div></div>
+  <div class="kpi-value" style="left:38px; top:564px;">$31M</div>
+  <div class="spark-cap" style="left:196px; top:610px;"><b>Monthly revenue</b><br>Aug 1997 - Jul 1998</div>
+  <svg class="kpi-spark" style="left:200px; top:554px;" width="88" height="56" viewBox="0 0 88 64" preserveAspectRatio="none"><path d="M0,26 L11,24 L22,28 L33,23 L44,27 L55,26 L66,31 L77,35 L88,40 L88,64 L0,64Z" fill="#6BD9DE" opacity=".25"/><polyline points="0,26 11,24 22,28 33,23 44,27 55,26 66,31 77,35 88,40" fill="none" stroke="#6BD9DE" stroke-width="2"/></svg>
+  <div class="kpi-sub" style="left:38px; top:634px;"><b style="color:var(--bad)">36.1%</b><span>of last-12-month revenue</span></div>
+
+  <!-- Layout set in Power BI Desktop (2026-10-20): worklist + accounts by risk on top, trend + revenue at risk below -->
+  <div class="box" style="left:1000px; top:110px; width:272px; height:280px;">
+    <h3>Key accounts by risk level</h3>
+    <div class="sub">The darker the colour, the higher the risk</div>
+    <svg width="244" height="200" viewBox="0 0 272 150" font-size="11" fill="#7A7575">
+      <text x="0" y="24">High</text><rect x="56" y="8" width="60" height="22" rx="2" fill="#176366"/><text x="122" y="24" fill="#292626">26</text>
+      <text x="0" y="60">Medium</text><rect x="56" y="44" width="120" height="22" rx="2" fill="#6BD9DE"/><text x="182" y="60" fill="#292626">52</text>
+      <text x="0" y="96">Low</text><rect x="56" y="80" width="178" height="22" rx="2" fill="#AAE9EC"/><text x="240" y="96" fill="#292626">77</text>
+      <text x="0" y="132">Inactive</text><rect x="56" y="116" width="12" height="22" rx="2" fill="#DDF5F6"/><text x="74" y="132" fill="#292626">5</text>
+    </svg>
+  </div>
+
+  <div class="box" style="left:1000px; top:406px; width:272px; height:214px;">
+    <h3>Revenue at risk by risk level</h3>
+    <div class="sub">Only accounts with warning signals have revenue at risk</div>
+    <svg width="244" height="134" viewBox="0 0 272 150" font-size="11" fill="#7A7575">
+      <text x="0" y="24">High</text><rect x="56" y="8" width="52" height="22" rx="2" fill="#176366"/><text x="114" y="24" fill="#292626">$7.3M</text>
+      <text x="0" y="60">Medium</text><rect x="56" y="44" width="168" height="22" rx="2" fill="#6BD9DE"/><text x="230" y="60" fill="#292626">$23.7M</text>
+      <text x="0" y="96">Low</text><text x="62" y="96" fill="#292626">$0</text>
+      <text x="0" y="132">Inactive</text><text x="62" y="132" fill="#292626">$0</text>
+    </svg>
+  </div>
+
+  <div class="box" style="left:316px; top:406px; width:675px; height:214px;">
+    <h3>Monthly revenue by risk level</h3>
+    <div class="sub">Aug 1997 - Jul 1998 · click an account to see its months</div>
+    <div class="legend"><span><i style="background:var(--high)"></i>High</span><span><i style="background:var(--medium)"></i>Medium</span><span><i style="background:var(--low)"></i>Low</span><span><i style="background:var(--inactive)"></i>Inactive</span></div>
+    <svg width="647" height="110" viewBox="0 0 288 110" preserveAspectRatio="none" font-size="9" fill="#7A7575">
+      <text x="0" y="96">$0</text><text x="0" y="52">$2M</text><text x="0" y="12">$4M</text>
+      <line x1="28" y1="49" x2="288" y2="49" stroke="#EDEBEB"/><line x1="28" y1="93" x2="288" y2="93" stroke="#E7ECEF"/>
+      <polyline fill="none" stroke="#AAE9EC" stroke-width="2" points="28,18 52,16 76,19 100,17 124,20 148,15 172,18 196,16 220,19 244,17 268,16 288,18"/>
+      <polyline fill="none" stroke="#6BD9DE" stroke-width="2" points="28,34 52,35 76,35 100,37 124,36 148,38 172,37 196,39 220,38 244,40 268,40 288,41"/>
+      <polyline fill="none" stroke="#176366" stroke-width="2" points="28,58 52,59 76,60 100,61 124,62 148,63 172,64 196,66 220,66 244,68 268,69 288,71"/>
+      <polyline fill="none" stroke="#DDF5F6" stroke-width="2" points="28,86 52,87 76,88 100,89 124,90 148,91 172,91 196,92 220,92 244,93 268,93 288,93"/>
+      <text x="28" y="108">Aug</text><text x="150" y="108">Jan</text><text x="268" y="108">Jul</text>
+    </svg>
+  </div>
+
+  <!-- Call-status filter of the worklist (opens on "Not called"; only filters the table) -->
+  <div class="box slicer" style="left:841px; top:118px; width:142px; height:50px; z-index:2;"><div class="label">Call status</div><div class="field">Not called <span>▾</span></div></div>
+  <!-- "Log a call" button: opens the Streamlit form in Snowflake -->
+  <div class="box slicer logcall" style="left:724px; top:118px; width:110px; height:50px;"><div class="label">Call log</div><div class="field">Log a call</div></div>
+  <!-- Contact tooltip shown when hovering a worklist row (illustrative position) -->
+  <div class="box tip" style="left:520px; top:196px; width:420px; height:150px; z-index:3;">
+    <b class="tname">Customer#000086233</b>
+    <div class="tgrid"><div><b>R. O.</b><span>Contact person</span></div><div><b>33-277-290-8239</b><span>Phone</span></div>
+    <div><b>-</b><span>Last call</span></div>
+    <div class="wide"><b>hickhibdBd Xb</b><span>Address</span></div>
+    <div><b style="color:#176366">Not called</b><span>Call status</span></div></div>
+  </div>
+  <!-- Worklist: the main visual, full width, bigger text, turquoise frame, drill through to the account detail -->
+  <div class="box worklist" style="left:316px; top:110px; width:675px; height:280px;">
+    <h3>Worklist for this week</h3>
+    <div class="sub">High risk first, then by revenue at risk · right-click = detail</div>
+    <table>
+      <thead><tr><th>Customer</th><th>Risk</th><th class="num">Revenue at risk</th><th class="num">Change 12 months</th><th>Why</th><th>Last call</th></tr></thead>
+      <tbody>
+        <tr><td>Customer#000086233</td><td>High</td><td class="num">$680,288</td><td class="num" style="color:var(--bad)">-40.3%</td><td>Overdue · Declining</td><td>-</td></tr>
+        <tr><td>Customer#000018889</td><td>High</td><td class="num">$568,383</td><td class="num" style="color:var(--bad)">-35.8%</td><td>Overdue · Declining</td><td>-</td></tr>
+        <tr><td>Customer#000106660</td><td>High</td><td class="num">$502,938</td><td class="num" style="color:var(--bad)">-40.9%</td><td>Declining · Service</td><td>-</td></tr>
+        <tr><td>Customer#000083761</td><td>High</td><td class="num">$493,908</td><td class="num" style="color:var(--bad)">-47.5%</td><td>Overdue · Declining</td><td>-</td></tr>
+        <tr><td>Customer#000039796</td><td>High</td><td class="num">$461,265</td><td class="num" style="color:var(--bad)">-40.2%</td><td>Overdue · Declining</td><td>-</td></tr>
+        <tr><td>Customer#000…</td><td>High</td><td class="num">$…</td><td class="num" style="color:var(--bad)">-…%</td><td>Overdue · Declining</td><td>-</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- How to read it -->
+  <div class="box story" style="left:316px; top:644px; width:940px; height:56px;">
+    How to read it: every account gets three warning signals - overdue (much later than its usual ordering rhythm), declining (12-month revenue down more than 30%) and service issues (worst 25% for late deliveries). Two or more signals = High risk. Only tier A accounts (the top 20% by revenue) are shown: start with the High-risk ones (dark turquoise).
+  </div>
+</div>
+
+<p class="note"><b>Drill-through page</b> "Account detail" (hidden; opened from the worklist with right-click → Drill through). Example: Customer#000086233, illustrative bars.</p>
+<div class="page">
+  <div class="box band" style="left:8px; top:8px; width:1264px; height:86px; padding-left:84px;"><h1>Account detail</h1><p>Why this account is at risk and how its revenue has moved over the last 24 months</p></div>
+  <div style="position:absolute; left:26px; top:28px; width:44px; height:44px; font:700 30px/44px var(--head); color:#176366; text-align:center;">←</div>
+  <div class="box dcard" style="left:24px; top:110px; width:196px; height:96px;"><b style="">Customer#000086233</b><span>Customer</span></div>
+  <div class="box dcard" style="left:231px; top:110px; width:196px; height:96px;"><b style="color:#176366">High</b><span>Risk level</span></div>
+  <div class="box dcard" style="left:438px; top:110px; width:196px; height:96px;"><b style="">Overdue · Declining</b><span>Why</span></div>
+  <div class="box dcard" style="left:645px; top:110px; width:196px; height:96px;"><b style="">$680,288</b><span>Revenue 12 months</span></div>
+  <div class="box dcard" style="left:852px; top:110px; width:196px; height:96px;"><b style="color:var(--bad)">▼ -40.3%</b><span>Last 12 months vs previous 12 months</span></div>
+  <div class="box dcard" style="left:1059px; top:110px; width:196px; height:96px;"><b style="">$680,288</b><span>Revenue at risk</span></div>
+  <div class="box" style="left:24px; top:220px; width:812px; height:410px;">
+    <h3>Monthly revenue of the account</h3>
+    <div class="sub">Aug 1996 - Jul 1998 · the last 12 months are the right half</div>
+    <svg width="784" height="340" viewBox="0 0 784 340"><g fill="#6BD9DE"><rect x="36" y="120" width="24" height="200" rx="2"/><rect x="68" y="120" width="24" height="200" rx="2"/><rect x="132" y="200" width="24" height="120" rx="2"/><rect x="164" y="120" width="24" height="200" rx="2"/><rect x="196" y="160" width="24" height="160" rx="2"/><rect x="228" y="80" width="24" height="240" rx="2"/><rect x="260" y="120" width="24" height="200" rx="2"/><rect x="324" y="120" width="24" height="200" rx="2"/><rect x="388" y="230" width="24" height="90" rx="2"/><rect x="452" y="180" width="24" height="140" rx="2"/><rect x="548" y="230" width="24" height="90" rx="2"/><rect x="580" y="180" width="24" height="140" rx="2"/><rect x="612" y="180" width="24" height="140" rx="2"/><rect x="644" y="230" width="24" height="90" rx="2"/><rect x="676" y="230" width="24" height="90" rx="2"/></g><line x1="0" y1="320" x2="784" y2="320" stroke="#E7ECEF"/></svg>
+  </div>
+  <div class="box" style="left:850px; top:220px; width:406px; height:410px;">
+    <h3>Orders</h3>
+    <div class="sub">Most recent first</div>
+    <table style="font-size:13px"><thead><tr><th>Date</th><th class="num">Revenue</th></tr></thead><tbody>
+      <tr><td>1998-03-…</td><td class="num">$…</td></tr><tr><td>1998-01-…</td><td class="num">$…</td></tr>
+      <tr><td>1997-11-…</td><td class="num">$…</td></tr><tr><td>1997-08-…</td><td class="num">$…</td></tr>
+    </tbody></table>
+  </div>
+  <div class="box story" style="left:24px; top:644px; width:1232px; height:56px;">To prepare the call: the top row says why the account is flagged (overdue, declining, service). The bars show if the drop is recent or long-standing, and the orders list shows when it last ordered. Arrow at the top left: back to the cockpit (Ctrl+click in Desktop).</div>
+</div>
+</body>
+</html>

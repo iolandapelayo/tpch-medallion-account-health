@@ -97,6 +97,8 @@ a { color: var(--teal); }
   font-weight: 600; padding: 12px 22px; border-radius: 999px; transition: transform .2s, background .2s;
 }
 .hero .cta:hover { background: var(--turq-l); transform: translateY(-2px); }
+.dash-link { display: inline-flex; align-items: center; gap: 10px; margin-top: 6px; padding: 11px 16px; border-radius: 999px; background: var(--teal); color: var(--white); font-weight: 600; text-decoration: none; transition: transform .2s, background .2s; }
+.dash-link:hover { background: var(--slate); transform: translateY(-2px); }
 
 /* hero visual: PDF -> dashboard */
 .journey { display: grid; grid-template-columns: 1fr auto 1.25fr; align-items: center; gap: 14px; }
@@ -724,6 +726,7 @@ footer .wrap { padding-block: 22px; display: flex; justify-content: space-betwee
     <div class="body-col">
       <h2 data-t="c8.title"></h2>
       <p class="intro" data-t="c8.intro"></p>
+      <a class="dash-link" href="dashboard/" target="_blank" rel="noopener noreferrer"><span data-t="c8.direct">Ver maqueta del dashboard</span><span aria-hidden="true">↗</span></a>
       <p class="block intro" data-t="c8.focus"></p>
       <p class="block intro" data-t="c8.proc"></p>
       <div class="block flow" style="margin-top:16px">
@@ -972,6 +975,7 @@ const T = {
   "c8.label": { en: "The bonus", es: "El bonus", ca: "El bonus" },
   "c8.title": { en: "And then, the dashboard", es: "Y al final, el dashboard", ca: "I al final, el dashboard" },
   "c8.intro": { en: "I used Claude to create the report files, then validated their structure and checked the result against the Gold data.", es: "Usé Claude para generar los archivos del informe y después validé su estructura y el resultado conectado a Gold.", ca: "Vaig fer servir Claude per generar els fitxers de l'informe i després en vaig validar l'estructura i el resultat connectat a Gold." },
+  "c8.direct": { en: "Open the dashboard mockup", es: "Ver maqueta del dashboard", ca: "Veure la maqueta del dashboard" },
   "c8.f1": { en: "Describe", es: "Describir", ca: "Descriure" },
   "c8.f1d": { en: "I explained to Claude what a KAM needs to see on one screen.", es: "Expliqué a Claude qué necesita ver un KAM en una sola pantalla.", ca: "Vaig explicar a Claude què necessita veure un KAM en una sola pantalla." },
   "c8.f2": { en: "Test", es: "Probar", ca: "Provar" },
